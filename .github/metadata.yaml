@@ -1,0 +1,11 @@
+# .github/metadata.yaml
+description: "Swift implementation of SMPTE ST 12-1: Time and Control Code, the hours:minutes:seconds:frames timecode with drop-frame counting."
+topics:
+  - standards
+  - smpte
+  - smpte-st-12
+  - timecode
+  - video
+homepage: "https://swift-institute.org"
+readme:
+  family: E
