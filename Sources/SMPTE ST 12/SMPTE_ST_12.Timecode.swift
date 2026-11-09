@@ -12,6 +12,8 @@ extension SMPTE_ST_12 {
         public let minutes: Int
         public let seconds: Int
         public let frames: Int
+        /// The nominal rate the address is counted at.
+        public let rate: Rate
         public let counting: Counting
     }
 }
@@ -35,12 +37,14 @@ extension SMPTE_ST_12.Timecode {
             minutes: label / (nominal * 60) % 60,
             seconds: label / nominal % 60,
             frames: label % nominal,
+            rate: rate,
             counting: counting
         )
     }
 
-    /// How many frames this address lies after 00:00:00:00, the inverse of `init(frame:rate:counting:)`.
-    public func frame(at rate: Rate) -> Cardinal {
+    /// How many frames this address lies after 00:00:00:00 at its own rate, the inverse of
+    /// `init(frame:rate:counting:)` for any frame within a day.
+    public var frame: Cardinal {
         let nominal = rate.nominal
         let minutes = 60 * hours + self.minutes
         let label = ((minutes * 60) + seconds) * nominal + frames

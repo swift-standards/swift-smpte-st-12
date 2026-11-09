@@ -9,5 +9,5 @@ Use this package when you need to turn a frame count into an SMPTE timecode addr
 - Drop-frame counting exists only at `SMPTE_ST_12.Timecode.Rate.thirty` and `SMPTE_ST_12.Timecode.Rate.sixty`. Any other rate throws `SMPTE_ST_12.Timecode.Error.drop(_:)`.
 - Non-drop counting is plain arithmetic on the nominal rate.
 - Hours wrap at 24, so a frame count of a day or more maps to the same address as its remainder.
-- An address doesn't remember its rate. `SMPTE_ST_12.Timecode.frame(at:)` inverts `SMPTE_ST_12.Timecode.init(frame:rate:counting:)` only when given the same rate, for any frame within a day.
+- An address stores its rate. `SMPTE_ST_12.Timecode.frame` inverts `SMPTE_ST_12.Timecode.init(frame:rate:counting:)` for any frame within a day.
 - The description writes each field as two digits separated by colons. The separator before the frames is a semicolon when counting drops frames.

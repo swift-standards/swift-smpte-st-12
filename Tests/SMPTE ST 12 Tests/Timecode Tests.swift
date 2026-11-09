@@ -30,9 +30,18 @@ import Testing
         for (rate, counting) in [(SMPTE_ST_12.Timecode.Rate.thirty, SMPTE_ST_12.Timecode.Counting.drop), (.sixty, .drop), (.twentyFive, .nonDrop)] {
             for frame in stride(from: 0, to: UInt(rate.nominal) * 86_000, by: 7) {
                 let address = try SMPTE_ST_12.Timecode(frame: Cardinal(frame), rate: rate, counting: counting)
-                #expect(address.frame(at: rate) == Cardinal(frame))
+                #expect(address.frame == Cardinal(frame))
             }
         }
+    }
+
+    @Test func `an address counts back at the rate it was made with`() throws {
+        let address = try SMPTE_ST_12.Timecode(frame: Cardinal(1800 as UInt), rate: .thirty, counting: .drop)
+        #expect(address.rate == .thirty)
+        #expect(address.frame == Cardinal(1800 as UInt))
+        let twentyFive = try SMPTE_ST_12.Timecode(frame: Cardinal(1800 as UInt), rate: .twentyFive, counting: .nonDrop)
+        #expect(twentyFive.description == "00:01:12:00")
+        #expect(twentyFive.frame == Cardinal(1800 as UInt))
     }
 
     @Test func `drop-frame is refused where it is undefined`() {
