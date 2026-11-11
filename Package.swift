@@ -15,13 +15,15 @@ let package = Package(
         .library(name: "SMPTE ST 12", targets: ["SMPTE ST 12"])
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main")
+        .package(url: "https://github.com/swift-atoms/swift-cardinal.git", branch: "main"),
+        .package(url: "https://github.com/swift-atoms/swift-rate.git", branch: "main"),
     ],
     targets: [
         .target(
             name: "SMPTE ST 12",
             dependencies: [
-                .product(name: "Cardinal", package: "swift-cardinal")
+                .product(name: "Cardinal", package: "swift-cardinal"),
+                .product(name: "Rate", package: "swift-rate"),
             ]
         ),
         .testTarget(
@@ -29,6 +31,7 @@ let package = Package(
             dependencies: [
                 .target(name: "SMPTE ST 12"),
                 .product(name: "Cardinal", package: "swift-cardinal"),
+                .product(name: "Rate", package: "swift-rate"),
             ]
         ),
     ],
