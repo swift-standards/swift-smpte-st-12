@@ -1,4 +1,5 @@
 public import Cardinal
+public import Rate
 
 extension SMPTE_ST_12 {
     /// A time address, hours:minutes:seconds:frames, counted at a whole nominal rate.
@@ -50,6 +51,15 @@ extension SMPTE_ST_12.Timecode {
         let label = ((minutes * 60) + seconds) * nominal + frames
         let count = counting == .drop ? label - nominal / 15 * (minutes - minutes / 10) : label
         return Cardinal(UInt(count))
+    }
+}
+
+extension SMPTE_ST_12.Timecode {
+    /// The address of the frame `count` frames after 00:00:00:00 when frames arrive at exactly `rate` a
+    /// second, counted the way `Rate.counting(_:)` says. Fails with `.uncounted` for a rate ST 12-1 does not count.
+    public init(frame count: Cardinal, at rate: Rate::Rate) throws(SMPTE_ST_12.Timecode.Error) {
+        guard let (nominal, counting) = Rate.counting(rate) else { throw .uncounted(rate) }
+        try self.init(frame: count, rate: nominal, counting: counting)
     }
 }
 
