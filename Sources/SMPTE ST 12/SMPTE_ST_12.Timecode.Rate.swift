@@ -35,8 +35,8 @@ extension SMPTE_ST_12.Timecode.Rate {
     /// because drop-frame counting exists at 30 and 60 only. Any other rate has no time address.
     public static func counting(_ rate: Rate::Rate) -> (rate: Self, counting: SMPTE_ST_12.Timecode.Counting)? {
         for candidate in Self.allCases {
-            if rate.perUnit == Rational(candidate.nominal) { return (candidate, .nonDrop) }
-            if rate.perUnit * Rational(1001) == Rational(candidate.nominal * 1000) {
+            if rate.frequency == Rational(candidate.nominal) { return (candidate, .nonDrop) }
+            if rate.frequency * Rational(1001) == Rational(candidate.nominal * 1000) {
                 return (candidate, candidate.nominal % 30 == 0 ? .drop : .nonDrop)
             }
         }
