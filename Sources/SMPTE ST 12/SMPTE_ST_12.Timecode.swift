@@ -13,53 +13,53 @@ extension SMPTE_ST_12 {
         public let minutes: Int
         public let seconds: Int
         public let frames: Int
-        /// The nominal rate the address is counted at.
-        public let rate: Rate
+        /// The nominal count the address is counted at.
+        public let nominal: Nominal
         public let counting: Counting
     }
 }
 
 extension SMPTE_ST_12.Timecode {
     /// The address of the frame `count` frames after 00:00:00:00.
-    public init(frame count: Cardinal, rate: Rate, counting: Counting) throws(SMPTE_ST_12.Timecode.Error) {
-        let nominal = rate.nominal
-        let skipped = counting == .drop ? nominal / 15 : 0
-        guard counting == .nonDrop || nominal % 30 == 0 else { throw .drop(rate) }
+    public init(frame count: Cardinal, nominal: Nominal, counting: Counting) throws(SMPTE_ST_12.Timecode.Error) {
+        let perSecond = nominal.frames
+        let skipped = counting == .drop ? perSecond / 15 : 0
+        guard counting == .nonDrop || perSecond % 30 == 0 else { throw .drop(nominal) }
         let count = Int(clamping: count)
         var label = count
         if counting == .drop {
-            let minute = nominal * 60 - skipped
+            let minute = perSecond * 60 - skipped
             let tens = count / (minute * 10 + skipped)
             let rest = count % (minute * 10 + skipped)
             label += 9 * skipped * tens + (rest > skipped ? skipped * ((rest - skipped) / minute) : 0)
         }
         self.init(
-            hours: label / (nominal * 3600) % 24,
-            minutes: label / (nominal * 60) % 60,
-            seconds: label / nominal % 60,
-            frames: label % nominal,
-            rate: rate,
+            hours: label / (perSecond * 3600) % 24,
+            minutes: label / (perSecond * 60) % 60,
+            seconds: label / perSecond % 60,
+            frames: label % perSecond,
+            nominal: nominal,
             counting: counting
         )
     }
 
-    /// How many frames this address lies after 00:00:00:00 at its own rate, the inverse of
-    /// `init(frame:rate:counting:)` for any frame within a day.
+    /// How many frames this address lies after 00:00:00:00 at its own nominal, the inverse of
+    /// `init(frame:nominal:counting:)` for any frame within a day.
     public var frame: Cardinal {
-        let nominal = rate.nominal
+        let perSecond = nominal.frames
         let minutes = 60 * hours + self.minutes
-        let label = ((minutes * 60) + seconds) * nominal + frames
-        let count = counting == .drop ? label - nominal / 15 * (minutes - minutes / 10) : label
+        let label = ((minutes * 60) + seconds) * perSecond + frames
+        let count = counting == .drop ? label - perSecond / 15 * (minutes - minutes / 10) : label
         return Cardinal(UInt(count))
     }
 }
 
 extension SMPTE_ST_12.Timecode {
     /// The address of the frame `count` frames after 00:00:00:00 when frames arrive at exactly `rate` a
-    /// second, counted the way `Rate.counting(_:)` says. Fails with `.uncounted` for a rate ST 12-1 does not count.
-    public init(frame count: Cardinal, at rate: Rate::Rate) throws(SMPTE_ST_12.Timecode.Error) {
-        guard let (nominal, counting) = Rate.counting(rate) else { throw .uncounted(rate) }
-        try self.init(frame: count, rate: nominal, counting: counting)
+    /// second, counted the way `Nominal.counting(_:)` says. Fails with `.uncounted` for a rate ST 12-1 does not count.
+    public init(frame count: Cardinal, at rate: Rate) throws(SMPTE_ST_12.Timecode.Error) {
+        guard let (nominal, counting) = Nominal.counting(rate) else { throw .uncounted(rate) }
+        try self.init(frame: count, nominal: nominal, counting: counting)
     }
 }
 
